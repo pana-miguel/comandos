@@ -1,0 +1,120 @@
+// ==============================
+// CRUD en MongoDB
+// Archivo de referencia
+// ==============================
+
+// Conectar a la base de datos
+use ("mi_base_de_datos") //se escribe el nombre de la base de datos a usar
+
+// ------------------------------
+// CREATE (Insertar)
+// ------------------------------
+
+// Insertar un documento
+db.usuarios.insertOne({ // insertOne es para insertar un solo documento
+    nombre: "Ana",
+    edad: 25,
+    ciudad: "Madrid"
+})
+
+// Insertar múltiples documentos
+db.usuarios.insertMany([
+    { nombre: "Luis", edad: 30, ciudad: "Barcelona" },
+    { nombre: "Marta", edad: 28, ciudad: "Valencia" },
+    { nombre: "Carlos", edad: 35, ciudad: "Sevilla" }
+])
+
+// ------------------------------
+// READ (Consultar)
+// ------------------------------
+
+// Obtener todos los documentos
+db.usuarios.find()
+
+// Mostrar con formato legible
+db.usuarios.find().pretty()
+
+// Filtrar por condición
+db.usuarios.find({ edad: 30 })
+
+// Operadores de comparación
+db.usuarios.find({ edad: { $gt: 28 } })      // mayor que
+db.usuarios.find({ edad: { $lt: 30 } })      // menor que
+db.usuarios.find({ edad: { $gte: 30 } })     // mayor o igual
+db.usuarios.find({ edad: { $lte: 25 } })     // menor o igual
+db.usuarios.find({ edad: { $ne: 30 } })      // distinto
+
+// Operadores lógicos
+db.usuarios.find({ $and: [ { edad: { $gt: 25 } }, { ciudad: "Madrid" } ] })
+db.usuarios.find({ $or: [ { ciudad: "Madrid" }, { ciudad: "Valencia" } ] })
+
+// Seleccionar campos específicos
+db.usuarios.find({}, { nombre: 1, ciudad: 1 })
+
+// Ordenar resultados
+db.usuarios.find().sort({ edad: 1 })   // ascendente
+db.usuarios.find().sort({ edad: -1 })  // descendente
+
+// Limitar y omitir resultados
+db.usuarios.find().limit(2)
+db.usuarios.find().skip(1)
+
+// Contar documentos
+db.usuarios.countDocuments()
+
+// ------------------------------
+// UPDATE (Actualizar)
+// ------------------------------
+
+// Actualizar un documento
+db.usuarios.updateOne(
+    { nombre: "Ana" },
+    { $set: { edad: 26 } }
+)
+
+// Actualizar varios documentos
+db.usuarios.updateMany(
+    { ciudad: "Madrid" },
+    { $set: { pais: "España" } }
+)
+
+// Incrementar un valor
+db.usuarios.updateOne(
+    { nombre: "Luis" },
+    { $inc: { edad: 1 } }
+)
+
+// Renombrar un campo
+db.usuarios.updateMany(
+    {},
+    { $rename: { "ciudad": "localidad" } }
+)
+
+// ------------------------------
+// DELETE (Eliminar)
+// ------------------------------
+
+// Eliminar un documento
+db.usuarios.deleteOne({ nombre: "Marta" })
+
+// Eliminar varios documentos
+db.usuarios.deleteMany({ edad: { $lt: 30 } })
+
+// Eliminar todos los documentos de la colección
+db.usuarios.deleteMany({})
+
+// ------------------------------
+// EXTRA: Operaciones útiles
+// ------------------------------
+
+// Crear un índice
+db.usuarios.createIndex({ nombre: 1 })
+
+// Buscar con índice
+db.usuarios.find({ nombre: "Ana" }).explain("executionStats")
+
+// Agregaciones básicas
+db.usuarios.aggregate([
+    { $match: { edad: { $gte: 25 } } },
+    { $group: { _id: "$ciudad", promedioEdad: { $avg: "$edad" } } }
+])
